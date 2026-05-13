@@ -4,18 +4,18 @@
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-- 🔐 **Strict RBAC Enforcement**: Role-based access control policies mapping simulated LDAP/SSO user profiles to specific data clearance levels (Executive, Engineering, HR, Finance, Compliance).
-- 🔀 **Context-Aware Hybrid Routing**: Intelligently determines user intent. Analytical financial queries are routed directly to structured SQL databases, while semantic knowledge queries search FAISS and BM25 vector spaces.
-- 📁 **Multi-Format Ingestion Connectors**: Native parsers supporting PowerPoint (`.pptx`), Word documents (`.docx`), PDF reports, JSON engineering logs, and structured financial CSVs.
-- 📊 **Uncertainty Quantification & Citations**: Calculates statistical confidence scores for generated answers to minimize hallucinations, and displays explicit citation references linking to original documents.
-- 🚀 **Cloud & Container Ready**: Fully containerized with Docker Compose, Kubernetes manifests for horizontal pod autoscaling, and Terraform IaC for AWS EKS & S3 Glacier lifecycle archiving.
-- 📈 **Real-time Analytics Dashboard**: Built-in monitoring for query latencies, system throughput (QPM), and unauthorized RBAC access attempt logging.
+- **Strict RBAC Enforcement**: Role-based access control policies mapping simulated LDAP/SSO user profiles to specific data clearance levels (Executive, Engineering, HR, Finance, Compliance).
+- **Context-Aware Hybrid Routing**: Intelligently determines user intent. Analytical financial queries are routed directly to structured SQL databases, while semantic knowledge queries search FAISS and BM25 vector spaces.
+- **Multi-Format Ingestion Connectors**: Native parsers supporting PowerPoint (`.pptx`), Word documents (`.docx`), PDF reports, JSON engineering logs, and structured financial CSVs.
+- **Uncertainty Quantification & Citations**: Calculates statistical confidence scores for generated answers to minimize hallucinations, and displays explicit citation references linking to original documents.
+- **Cloud & Container Ready**: Fully containerized with Docker Compose, Kubernetes manifests for horizontal pod autoscaling, and Terraform IaC for AWS EKS & S3 Glacier lifecycle archiving.
+- **Real-time Analytics Dashboard**: Built-in monitoring for query latencies, system throughput (QPM), and unauthorized RBAC access attempt logging.
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 ├── backend/                  # FastAPI Application, FAISS Vector Store, RBAC Policy Engine
@@ -27,7 +27,7 @@
 
 ---
 
-## 🚀 Quickstart Guide
+## Quickstart Guide
 
 ### 1. Run Locally with Docker Compose
 
@@ -38,9 +38,9 @@ cd deployment
 docker-compose up --build -d
 ```
 
-- **Frontend Studio UI**: [http://localhost:8080](http://localhost:8080)
-- **Backend API Gateway**: [http://localhost:8000](http://localhost:8000)
-- **API Swagger Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Frontend Studio UI**: http://localhost:8080
+- **Backend API Gateway**: http://localhost:8000
+- **API Swagger Docs**: http://localhost:8000/docs
 
 ### 2. Run Local Test Suite
 
@@ -52,7 +52,7 @@ pytest tests/
 
 ---
 
-## 📖 Comprehensive Documentation Links
+## Comprehensive Documentation Links
 
 - [System Architecture & Data Flows](docs/system_architecture.md)
 - [Deployment & Scaling Guide](docs/deployment_guide.md)
