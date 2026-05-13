@@ -9,8 +9,7 @@ from app.config import settings
 
 class EnterpriseVectorStore:
     def __init__(self):
-        self.embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL)
-        self.dimension = self.embedding_model.get_sentence_embedding_dimension()
+        self.dimension = 384 # Default dimension for all-MiniLM-L6-v2
         self.index_path = settings.VECTOR_STORE_PATH + ".index"
         self.meta_path = settings.VECTOR_STORE_PATH + "_meta.pkl"
         
@@ -18,8 +17,18 @@ class EnterpriseVectorStore:
         self.chunks: List[Dict[str, Any]] = []
         self.bm25: BM25Okapi = None
         self.tokenized_corpus: List[List[str]] = []
+        self._embedding_model = None # Lazy-loaded to prevent cloud OOM on free tier
 
         self._load_or_create_index()
+
+    @property
+    def embedding_model(self):
+        if self._embedding_model is None:
+            try:
+                self._embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL, device="cpu")
+            except Exception as e:
+                print(f"Embedding model lazy-load warning: {e}")
+        return self._embedding_model
 
     def _load_or_create_index(self):
         if os.path.exists(self.index_path) and os.path.exists(self.meta_path):
@@ -57,22 +66,21 @@ class EnterpriseVectorStore:
         if not chunks:
             return
         texts = [c["text"] for c in chunks]
-        embeddings = self.embedding_model.encode(texts, show_progress_bar=False, convert_to_numpy=True)
-        
-        # Add to FAISS
-        self.index.add(embeddings)
+        model = self.embedding_model
+        if model:
+            embeddings = model.encode(texts, show_progress_bar=False, convert_to_numpy=True)
+            self.index.add(embeddings)
         self.chunks.extend(chunks)
         
-        # Update BM25
         self._rebuild_bm25()
         self.save_index()
 
     def semantic_search(self, query: str, top_k: int = 5, silo_filter: str = None) -> List[Tuple[Dict[str, Any], float]]:
-        if self.index.ntotal == 0:
+        if self.index.ntotal == 0 or not self.embedding_model:
             return []
         
         query_vector = self.embedding_model.encode([query], convert_to_numpy=True)
-        distances, indices = self.index.search(query_vector, min(top_k * 3, self.index.ntotal)) # fetch extra for filtering
+        distances, indices = self.index.search(query_vector, min(top_k * 3, self.index.ntotal))
         
         results = []
         for dist, idx in zip(distances[0], indices[0]):
@@ -81,7 +89,6 @@ class EnterpriseVectorStore:
             chunk = self.chunks[idx]
             if silo_filter and chunk.get("data_silo") != silo_filter:
                 continue
-            # Convert L2 distance to similarity score between 0 and 1
             sim_score = max(0.0, 1.0 - (dist / 100.0))
             results.append((chunk, sim_score))
             if len(results) >= top_k:
@@ -95,7 +102,6 @@ class EnterpriseVectorStore:
         tokenized_query = query.lower().split()
         scores = self.bm25.get_scores(tokenized_query)
         
-        # Rank indices
         top_indices = np.argsort(scores)[::-1]
         
         results = []
@@ -106,7 +112,6 @@ class EnterpriseVectorStore:
             chunk = self.chunks[idx]
             if silo_filter and chunk.get("data_silo") != silo_filter:
                 continue
-            # Normalize score roughly
             norm_score = min(1.0, score / 10.0)
             results.append((chunk, norm_score))
             if len(results) >= top_k:
