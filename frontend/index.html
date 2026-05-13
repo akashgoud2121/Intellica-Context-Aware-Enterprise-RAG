@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intellica | Context-Aware Enterprise RAG</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation -->
+        <header class="glass-header">
+            <div class="logo-area">
+                <div class="logo-icon"><i class="fa-solid fa-atom"></i></div>
+                <div class="logo-text">
+                    <h1>Intellica <span>RAG</span></h1>
+                    <p>Context-Aware Enterprise Engine</p>
+                </div>
+            </div>
+            
+            <div class="sso-persona-switcher">
+                <span class="switcher-label"><i class="fa-solid fa-id-card-clip"></i> Simulated SSO User:</span>
+                <div class="custom-select">
+                    <select id="userPersonaSelect" onchange="switchPersona(this.value)">
+                        <option value="ceo_alice">CEO Alice (Executive - Clearance: Top Secret)</option>
+                        <option value="lead_bob">Lead Bob (Engineering - Clearance: Confidential)</option>
+                        <option value="hr_clara">HR Clara (Human Resources - Clearance: Restricted)</option>
+                        <option value="fin_david">Finance David (Finance - Clearance: Secret)</option>
+                        <option value="comp_eve">Compliance Eve (Legal - Clearance: Secret)</option>
+                        <option value="guest_frank">Guest Frank (Contractor - Clearance: Unclassified)</option>
+                    </select>
+                </div>
+                <div class="status-badge" id="clearanceBadge">Top Secret</div>
+            </div>
+        </header>
+
+        <!-- Main Workspace Layout -->
+        <main class="main-workspace">
+            <!-- Sidebar: Navigation & Ingestion Studio -->
+            <aside class="sidebar glass-card">
+                <div class="nav-tabs">
+                    <button class="tab-btn active" onclick="switchTab('queryTab')"><i class="fa-solid fa-magnifying-glass"></i> RAG Search</button>
+                    <button class="tab-btn" onclick="switchTab('ingestTab')"><i class="fa-solid fa-cloud-arrow-up"></i> Data Ingestion</button>
+                    <button class="tab-btn" onclick="switchTab('analyticsTab')"><i class="fa-solid fa-chart-line"></i> Analytics & Audit</button>
+                </div>
+
+                <div class="current-user-card">
+                    <h3><i class="fa-solid fa-user-shield"></i> Active RBAC Context</h3>
+                    <div class="user-info-list">
+                        <div class="info-row">
+                            <span class="lbl">Role</span>
+                            <span id="infoRole" class="badge-role">Executive</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="lbl">Department</span>
+                            <span id="infoDept" class="badge-dept">Management</span>
+                        </div>
+                        <div class="silo-access-container">
+                            <span class="lbl">Permitted Data Silos</span>
+                            <div id="infoSilos" class="silo-pill-box">
+                                <span class="silo-pill">finance</span>
+                                <span class="silo-pill">hr</span>
+                                <span class="silo-pill">engineering</span>
+                                <span class="silo-pill">compliance</span>
+                                <span class="silo-pill">public</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="system-status-indicator">
+                    <div class="pulse-dot"></div>
+                    <div class="status-details">
+                        <span class="status-title">System Health</span>
+                        <span class="status-value">100% Operational | Hybrid FAISS Active</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center Content Area -->
+            <section class="content-area">
+                <!-- VIEW 1: RAG Query & Search Studio -->
+                <div id="queryTab" class="view-panel active">
+                    <div class="search-hero glass-card">
+                        <h2>Context-Aware Enterprise RAG</h2>
+                        <p>Ask natural language questions or perform analytical queries across disparate silos. The engine routes your intent intelligently.</p>
+                        
+                        <div class="search-box-wrapper">
+                            <div class="input-group">
+                                <i class="fa-solid fa-sparkles input-icon"></i>
+                                <input type="text" id="ragQueryInput" placeholder="e.g., What is the title of the PPT? OR What is Q1 2025 revenue?" onkeydown="if(event.key === 'Enter') executeQuery()">
+                                <select id="siloFilterSelect" class="silo-dropdown">
+                                    <option value="">All Permitted Silos</option>
+                                    <option value="finance">Finance DB</option>
+                                    <option value="engineering">Engineering Logs</option>
+                                    <option value="hr">HR Records</option>
+                                    <option value="compliance">Compliance</option>
+                                    <option value="public">Public</option>
+                                </select>
+                                <button class="btn-primary" onclick="executeQuery()"><i class="fa-solid fa-arrow-right"></i> Submit</button>
+                            </div>
+                            <div class="search-suggestions">
+                                <span>Try asking:</span>
+                                <button onclick="setQuery('What is the title of the presentation?')">"Title of presentation"</button>
+                                <button onclick="setQuery('What is Q1 2025 revenue?')">"Q1 2025 revenue"</button>
+                                <button onclick="setQuery('Check LDAP SSO commit logs')">"LDAP SSO commit logs"</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Query Results Container -->
+                    <div id="queryResultsArea" class="results-area hidden">
+                        <div class="result-header">
+                            <div class="meta-pills">
+                                <span class="pill intent-pill" id="pillIntent"><i class="fa-solid fa-route"></i> Intent: SQL_FINANCE</span>
+                                <span class="pill time-pill" id="pillTime"><i class="fa-solid fa-stopwatch"></i> Latency: 45ms</span>
+                            </div>
+                            <div class="confidence-meter">
+                                <div class="meter-text">
+                                    <span>Confidence Score</span>
+                                    <span id="confidenceVal">98% (Highly Grounded)</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" id="confidenceBar"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="answer-box glass-card">
+                            <h3><i class="fa-solid fa-robot"></i> Generated Response</h3>
+                            <div class="answer-content" id="ragAnswerContent">
+                                Generating response...
+                            </div>
+                        </div>
+
+                        <div class="citations-box glass-card">
+                            <h3><i class="fa-solid fa-quote-right"></i> Retrieval Traceability & Citations</h3>
+                            <div class="citations-grid" id="ragCitationsGrid">
+                                <!-- Citations injected via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: Data Ingestion Studio -->
+                <div id="ingestTab" class="view-panel hidden">
+                    <div class="ingest-card glass-card">
+                        <h2>Enterprise Connector Studio</h2>
+                        <p>Upload PowerPoint presentations (.pptx), Word docs (.docx), PDFs, JSON logs, or CSVs into isolated enterprise silos.</p>
+                        
+                        <div class="ingest-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Destination Data Silo</label>
+                                    <select id="ingestSilo">
+                                        <option value="engineering">Engineering Silo</option>
+                                        <option value="finance">Finance Silo</option>
+                                        <option value="hr">HR Silo</option>
+                                        <option value="compliance">Compliance Silo</option>
+                                        <option value="public">Public Silo</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Document Format / Parser</label>
+                                    <select id="ingestDocType">
+                                        <option value="pptx">PowerPoint Presentation (.pptx)</option>
+                                        <option value="docx">Word Document (.docx)</option>
+                                        <option value="pdf">PDF Report (OCR Pipeline)</option>
+                                        <option value="json_log">JSON Engineering Logs</option>
+                                        <option value="csv">Structured CSV Finance Data</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="file-dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+                                <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                                <h3>Drag & Drop Enterprise File Here</h3>
+                                <p>Auto-detects .pptx, .docx, .pdf, .json, .csv</p>
+                                <input type="file" id="fileInput" class="hidden-input" onchange="handleFileSelect(event)">
+                                <span id="selectedFileName" class="selected-file"></span>
+                            </div>
+
+                            <button class="btn-primary full-width" onclick="uploadDocument()"><i class="fa-solid fa-upload"></i> Process & Ingest Document</button>
+                            <div id="uploadStatus" class="status-msg"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: Analytics & Audit Dashboard -->
+                <div id="analyticsTab" class="view-panel hidden">
+                    <div id="analyticsContent" class="analytics-container">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG_MODE=True
+      - SECRET_KEY=production-secure-enterprise-jwt-key
+      - OPENAI_API_KEY=mock-enterprise-api-key-for-local-execution
+    volumes:
+      - enterprise_rag_data:/root/.enterprise_rag_storage
+    restart: unless-stopped
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ../frontend:/usr/share/nginx/html
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  enterprise_rag_data:
+    driver: local
